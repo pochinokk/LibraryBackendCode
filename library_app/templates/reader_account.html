@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Личный кабинет читателя{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href={% static '/css/Account.css' %}>
+{% endblock%}
+{% block content %}
+    <main class="account">
+    {% if message %}
+        <div class="auth server_message">
+            <p>{{ message }}</p>
+        </div>
+    {% endif %}
+
+    {% if errors %}
+        {% for error in errors %}
+        <div class="auth server_error">
+            <p>{{ error }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+    <h1>Личный кабинет читателя</h1>
+
+    <div>
+        <h2>Мой профиль</h2>
+        <div class="profile">
+            <p><strong>Логин:</strong> {{ current_user.username }}</p>
+            <p><strong>Полное имя:</strong> {{ current_user.full_name }}</p>
+            <p><strong>Телефон:</strong> {{ current_user.phone|default_if_none:"-" }}</p>
+            <p><strong>Адрес:</strong> {{ current_user.address|default_if_none:"-" }}</p>
+        </div>
+    </div>
+    <h2>Книги</h2>
+    <table class="table">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>Автор</th>
+            <th>Год издания</th>
+            <th>Язык</th>
+            <th>Дата конца выдачи/брони</th>
+            <th>Статус</th>
+            <th>Отмена брони</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+          <tr>
+            <td><strong>{{ book.name }}</strong></td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.printing_year|default_if_none:"-" }}</td>
+            <td>{{ book.language }}</td>
+            <td
+            style="
+              {% if book_sort == 'end_date' %}font-weight: 700; {% endif %}
+              color: {% if book.end_date < now %}red{% else %}black{% endif %};
+            "
+            >
+            {{ book.end_date|default_if_none:"-" }}
+            </td>
+            <td
+            style="
+              color: {% if not book.is_taken and not book.end_date %}green{% else %}black{% endif %};
+              color: {% if book.end_date and book.end_date < now %}red{% endif %};
+            "
+            >
+              {% if book.is_taken and book.end_date >= now %}
+                  Выдана
+              {% elif book.is_taken %}
+                  Просроченный возврат
+              {% elif book.end_date and book.end_date >= now %}
+                  Забронирована
+              {% elif book.end_date %}
+                  Просроченная бронь (будет отменена через некоторое время, если вы не придёте за книгой)
+              {% else %}
+                  Свободна
+              {% endif %}
+          </td>
+          <td >
+            {% if not book.is_taken%}
+            <a href="{% url 'cancel_reservation' book.pk %}"><button class="red_btn">Отмена</button></a>
+            {% else %}
+            <p>Книга уже выдана</p>
+            {% endif %}
+
+          </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7">Книги отсутствуют.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+</main>
+{% endblock%}

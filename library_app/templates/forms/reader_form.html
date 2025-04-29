@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ title }}{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href={% static '/css/Account.css' %}>
+{% endblock%}
+{% block content %}
+  <main class="account">
+    {% if errors %}
+      {% for error in errors %}
+      <div class="server_error">
+          <p>{{ error }}</p>
+      </div>
+      {% endfor %}
+    {% endif %}
+    <h1>{{ title }}</h1>
+    <form class="form" method="post">
+      {% csrf_token %}
+      <div>
+        <label for="{{ form.username.id_for_label }}">Логин:</label>
+        {{ form.username }}
+      </div>
+
+    
+      <div>
+        <label for="{{ form.publication_date.id_for_label }}">Полное имя:</label>
+        {{ form.full_name }}
+      </div>
+    
+      <div>
+        <label for="{{ form.phone.id_for_label }}">Телефон:</label>
+        {{ form.phone }}
+      </div>
+    
+      <div>
+        <label for="{{ form.address.id_for_label }}">Адрес:</label>
+        {{ form.address }}
+      </div>
+      <div>
+        <button type="submit" class="green_btn">Сохранить</button>
+      </div>
+    </form>
+    <a href="{% url 'librarian_account' %}"><button class="red_btn">Отмена</button>
+  </main>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Авторизация{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/authentication_style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer_registration_style.css' %}">
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% if error %}
+            <div class="auth error">
+                <p>Ошибка авторизации. Проверьте имя и пароль.</p>
+            </div>
+        {% endif %}
+
+        <div class="form-box">
+            <div class="form-value">
+                <form method="post">
+                    {% csrf_token %}
+                    <h2 class="word_auth">Вход</h2>
+
+                    <div class="inputbox">
+                        <label for="{{ form.username.id_for_label }}">Логин</label>
+                        {{ form.username }}
+                    </div>
+                    <div class="inputbox inputbox2">
+                        <label for="{{ form.password.id_for_label }}">Пароль</label>
+                        {{ form.password }}
+                    </div>
+
+                    <button type="submit">Войти</button>
+                    <div class="register">
+                        <p><a href="/registration">Регистрация</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="overlay"></div>
+    </div>
+{% endblock %}

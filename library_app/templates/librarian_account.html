@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Личный кабинет сотрудника{% endblock %}
+{% block extra_head %}
+  <link rel="stylesheet" href={% static '/css/Account.css' %}>
+  <script src ={% static '/js/open_hide_content.js' %} defer></script>
+{% endblock%}
+{% block content %}
+<main>
+  {% if messages %}
+    {% for message in messages %}
+    <div class="auth server_message">
+        <p>{{ message }}</p>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% if errors %}
+    {% for error in errors %}
+    <div class="auth server_error">
+        <p>{{ error }}</p>
+    </div>
+    {% endfor %}
+  {% endif %}
+  <h1>Личный кабинет библиотекаря</h1>
+  <div>
+    <h2>Мой профиль</h2>
+    <div class="profile">
+      <p><strong>Логин:</strong> {{ current_user.username }}</p>
+      <p><strong>Полное имя:</strong> {{ current_user.full_name }}</p>
+      <p><strong>Телефон:</strong> {{ current_user.phone|default_if_none:"-" }}</p>
+      <p><strong>Адрес:</strong> {{ current_user.address|default_if_none:"-" }}</p>
+    </div>
+</div>
+  <div>
+    <!-- Читатели -->
+    <div class="title_and_btn">
+      <h2>Читатели</h2>
+      <button class="red_btn" id="toggle-readers-btn" onclick="toggleReaders()" >Скрыть</button>
+    </div>
+
+    <div id="readers_content">
+      <div class="sort_buttons">
+        <h2>Сортировка</h2>
+        <a href="?user_sort=full_name"><button class="brown_btn">Полное имя</button></a>
+        <a href="?user_sort=id"><button class="brown_btn">ID</button></a>
+        <a href="?user_sort=username"><button class="brown_btn">Логин</button></a>
+      </div>
+  
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Полное имя</th>
+            <th>ID</th>
+            <th>Логин</th>
+            <th>Телефон</th>
+            <th>Адрес</th>
+            <th>Роль</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td style="{% if user_sort == 'full_name' %}font-weight: 700{% endif %}">{{ u.full_name }}</td>
+              <td style="{% if user_sort == 'id' %}font-weight: 700{% endif %}">{{ u.id }}</td>
+              <td style="{% if user_sort == 'username' %}font-weight: 700{% endif %}">{{ u.username }}</td>
+              <td>{{ u.phone|default_if_none:"-" }}</td>
+              <td>{{ u.address|default_if_none:"-" }}</td>
+              <td>{{ u.role }}</td>
+              <td>
+                <a href="{% url 'edit_reader' u.pk %}"><button class="green_btn" >Редактировать</button></a>
+                <a href="{% url 'delete_reader' u.pk %}"><button class="red_btn" >Удалить</button></a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="4">Нет зарегистрированных читателей.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+
+  </div>
+  
+
+  <div>
+        <!-- Книги -->
+    <div class="title_and_btn">
+      <h2>Книги</h2>
+      <button class="red_btn" id="toggle-books-btn" onclick="toggleBooks()">Скрыть</button>
+
+    </div>
+
+    <div id="books_content">
+      <a href="{% url 'create_book' %}"><button class="green_btn">Добавить книгу</button></a>
+
+      <form class="sort_buttons" method="get">
+        <h2 style="padding-right:5px;">Фильтр </h2>
+        <input type="text" name="username" placeholder="Логин читателя" value="{{ username|default_if_none:"" }}">
+        <button type="submit" class="green_btn">Фильтровать</button>
+      </form>
+      <div class="sort_buttons">
+        <h2>Сортировка</h2>
+        <a href="?book_sort=name"><button class="{% if book_sort == 'name' %}beige_btn{% else %}brown_btn{% endif %}">Название</button></a>
+        <a href="?book_sort=id"><button class="{% if book_sort == 'id' %}beige_btn{% else %}brown_btn{% endif %}">ID</button></a>
+        <a href="?book_sort=author"><button class="{% if book_sort == 'author' %}beige_btn{% else %}brown_btn{% endif %}">Автор</button></a>
+        <a href="?book_sort=printing_year"><button class="{% if book_sort == 'printing_year' %}beige_btn{% else %}brown_btn{% endif %}">Год издания</button></a>
+        <a href="?book_sort=language"><button class="{% if book_sort == 'language' %}beige_btn{% else %}brown_btn{% endif %}">Язык</button></a>
+        <a href="?book_sort=end_date"><button class="{% if book_sort == 'end_date' %}beige_btn{% else %}brown_btn{% endif %}">Дата конца выдачи/брони</button></a>
+        <a href="?book_sort=is_taken"><button class="{% if book_sort == 'is_taken' %}beige_btn{% else %}brown_btn{% endif %}">Статус</button></a>
+        <a href="?book_sort=reader"><button class="{% if book_sort == 'reader' %}beige_btn{% else %}brown_btn{% endif %}">Читатель</button></a>
+      </div>
+  
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Название</th>
+            <th>ID</th>
+            <th>Автор</th>
+            <th>Год издания</th>
+            <th>Язык</th>
+            <th>Дата конца выдачи/брони</th>
+            <th>Статус</th>
+            <th>Читатель</th>
+            <th>Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+          <tr>
+            <td style="{% if book_sort == 'name' %}font-weight: 700{% endif %}">{{ book.name }}</td>
+            <td style="{% if book_sort == 'id' %}font-weight: 700{% endif %}">{{ book.id }}</td>
+            <td style="{% if book_sort == 'author' %}font-weight: 700{% endif %}">{{ book.author }}</td>
+            <td style="{% if book_sort == 'printing_year' %}font-weight: 700{% endif %}">{{ book.printing_year|default_if_none:"-" }}</td>
+            <td style="{% if book_sort == 'language' %}font-weight: 700{% endif %}">{{ book.language }}</td>
+            <td
+            style="
+              {% if book_sort == 'end_date' %}font-weight: 700; {% endif %}
+              color: {% if book.end_date < now %}red{% else %}black{% endif %};
+            "
+            >
+            {{ book.end_date|default_if_none:"-" }}
+            </td>
+            <td
+            style="
+              {% comment %} font-weight: {% if not book.is_taken and not book.end_date %}500{% else %}auto{% endif %}; {% endcomment %}
+              {% if book_sort == 'is_taken' %}font-weight: 700; {% endif %}
+              color: {% if not book.is_taken and not book.end_date %}green{% else %}black{% endif %};
+              color: {% if book.end_date and book.end_date < now %}red{% endif %};
+            "
+            >
+              {% if book.is_taken and book.end_date >= now %}
+                  Выдана
+              {% elif book.is_taken %}
+                  Просроченный возврат
+              {% elif book.end_date and book.end_date >= now %}
+                  Забронирована
+              {% elif book.end_date %}
+                  Просроченная бронь
+              {% else %}
+                  Свободна
+              {% endif %}
+          </td>
+            <td style="{% if book_sort == 'reader' %}font-weight: 700{% endif %}">{{ book.reader|default_if_none:"-" }}</td>
+            <td>
+              <a href="{% url 'edit_book' book.pk %}"><button class="green_btn">Редактировать</button></a>
+              <a href="{% url 'delete_book' book.pk %}"><button class="red_btn">Удалить</button></a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="9">Книги отсутствуют.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+
+    </div>
+    
+  </div>
+
+</main>
+{% endblock%}

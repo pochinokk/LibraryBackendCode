@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Бронирование{% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href={% static '/css/Account.css' %}>
+{% endblock%}
+{% block content %}
+    <main>
+    {% if message %}
+        <div class="auth server_message">
+            <p>{{ message }}</p>
+        </div>
+    {% endif %}
+
+    {% if errors %}
+        {% for error in errors %}
+        <div class="auth server_error">
+            <p>{{ error }}</p>
+        </div>
+        {% endfor %}
+    {% endif %}
+    <h2>Каталог книг для бронирования</h2>
+    <p>Здесь вы можете забронировать <b>не более 5 книг</b>, чтобы потом забрать в библиотеке</p>
+    <div class="sort_buttons">
+        <h2>Сортировка</h2>
+        <a href="?book_sort=name"><button class="{% if book_sort == 'name' %}beige_btn{% else %}brown_btn{% endif %}">Название</button></a>
+        <a href="?book_sort=author"><button class="{% if book_sort == 'author' %}beige_btn{% else %}brown_btn{% endif %}">Автор</button></a>
+        <a href="?book_sort=printing_year"><button class="{% if book_sort == 'printing_year' %}beige_btn{% else %}brown_btn{% endif %}">Год издания</button></a>
+        <a href="?book_sort=language"><button class="{% if book_sort == 'language' %}beige_btn{% else %}brown_btn{% endif %}">Язык</button></a>
+    </div>
+    <div class="book_list">
+        {% for book in books %}
+        <div class="book_card">
+          <p class="book_name">{{ book.name }}</p>
+          <p style="{% if book_sort == 'author' %}font-weight: 700{% endif %}" >Автор: {{ book.author }}</p>
+          <p style="{% if book_sort == 'printing_year' %}font-weight: 700{% endif %}" >Год издания: {{ book.printing_year|default_if_none:"-" }}</p>
+          <p style="{% if book_sort == 'language' %}font-weight: 700{% endif %}" >Язык: {{ book.language }}</p>
+          <a class="reserve_btn" href="{% url 'add_reservation' book.pk %}"><button class="green_btn">Забронировать</button></a>
+        </div>
+      {% empty %}
+        <p>Свободных книг нет</p>
+      {% endfor %}
+    </div>
+</main>
+{% endblock%}
